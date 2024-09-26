@@ -2,7 +2,7 @@
 Author: Martin Calamel
 Created: 2024-09-26
 Description: programme principal pour les automates
-TODO: 
+TODO: Faire un meilleur interface
 """
 
 from automate_fonction import verif_phrase
