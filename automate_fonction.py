@@ -132,52 +132,50 @@ def changement_etats(etats: int, entree: int) -> int:
     return suivant
 
 
-def verif_phrase(phrase: str) -> int:
+def verif_phrase(phrase: str) -> bool:
     """
     fonction principale de l'automate
 
     input: phrase a verifier (str)
-    output: 0 si bien passer (int) 
+    output: retourne si la phrase est correct (bool) 
     """
     # initialisation des variable local et global
     global dictionnaire
     
     if len(phrase) == 0:
-        print("phrase incorrect")
-    else : 
-        liste_mots = format_phrase(phrase)
-        etat = 0
+        return False
+    
+    liste_mots = format_phrase(phrase)
+    if liste_mots[-1] != ".":
+        return False
+    etat = 0
 
-        # verification pour chaque mots
-        for i in liste_mots:
-            if check_in_dico(dictionnaire, i): # si le mot existe dans le dictionnaire
+    # verification pour chaque mots
+    for i in liste_mots:
+        if check_in_dico(dictionnaire, i): # si le mot existe dans le dictionnaire
 
-                # changement d'état et gestion des cas de sortie 
+            # changement d'état et gestion des cas de sortie 
 
-                etat = changement_etats(etat, dictionnaire[i])
-                if etat == 8:
-                    print("phrase incorrect")
-                    break
-                if etat == 9:
-                    print("phrase correct")
+            etat = changement_etats(etat, dictionnaire[i])
+            if etat == 8:
+                return False
+            if etat == 9:
+                return True
+        else:
+            # ajout du mot dans le dictionnaire selon la volonté de l'utilisateur
+            print("Mot inexistant dans le dictionnaire :", i)
+            choix = input("voulez-vous l'ajouter ? (Y/N) : ")
+
+            if choix.upper() == "Y":
+
+                classe_mot = int(input("classe du mot:\n 0 = article\n 1 = adjectif\n 2 = Nom commun\n 3 = Nom Propre\n 4 = verbe\n>>>  "))
+                
+                add_to_dico_file(i, classe_mot, dico_file)
+                dictionnaire = make_dico_file(dico_file)
+                
+                return verif_phrase(phrase)
             else:
-                # ajout du mot dans le dictionnaire selon la volonté de l'utilisateur
-                print("Mot inexistant dans le dictionnaire :", i)
-                choix = input("voulez-vous l'ajouter ? (Y/N) : ")
-
-                if choix.upper() == "Y":
-
-                    classe_mot = int(input("classe du mot:\n 0 = article\n 1 = adjectif\n 2 = Nom commun\n 3 = Nom Propre\n 4 = verbe\n>>>  "))
-                    
-                    add_to_dico_file(i, classe_mot, dico_file)
-                    dictionnaire = make_dico_file(dico_file)
-                    
-                    verif_phrase(phrase)
-                else:
-                    print("mot inconnu, fin du programme")
-                    break
-        return 0
-
+                return False
 
 #### initialisation des variables
 
@@ -233,20 +231,20 @@ if __name__ == "__main__":
     # phrase qui devrait être correctes
 
     print("phrase OK")
-    verif_phrase("le joli chat mange.")
-    verif_phrase("le ,joli chat; dort.")
-    verif_phrase("la grosse souris verte mange le joli petite chat blanc.")
-    verif_phrase("la grosse souris verte mange jean.")
-    verif_phrase("Jean dort.")
-    verif_phrase("Jean mange Martin.")
-    verif_phrase("Jean mange le chat.")
-    verif_phrase("la verte souris grosse petit mange le bleu verte chat petite.")
+    print(verif_phrase("le joli chat mange."))
+    print(verif_phrase("le ,joli chat; dort."))
+    print(verif_phrase("la grosse souris verte mange le joli petite chat blanc."))
+    print(verif_phrase("la grosse souris verte mange jean."))
+    print(verif_phrase("Jean dort."))
+    print(verif_phrase("Jean mange Martin."))
+    print(verif_phrase("Jean mange le chat."))
+    print(verif_phrase("la verte souris grosse petit mange le bleu verte chat petite."))
 
     # phrase qui devrait être incorrect
     print("\n\nphrase NO")
-    verif_phrase(".")
-    verif_phrase("")
-    verif_phrase("le joli chat joue")
+    print(verif_phrase("."))
+    print(verif_phrase(""))
+    print(verif_phrase("le joli chat joue"))
 
     
 

@@ -18,3 +18,4 @@ les;0
 blanc;1
 petit;1
 joue;4
+clavier;2
