@@ -1,7 +1,7 @@
 """
 Author: Martin Calamel
 Created: 2024-09-26
-Description: automate qui vérifie la structure grammatical d'une phrase 
+Description: fonction automate qui vérifie la structure grammatical d'une phrase 
 TODO: 
 """
 
@@ -18,7 +18,7 @@ def format_phrase(phrase: str) -> list:
     # définition des variables local
     phrase = phrase.lower()
     phrase_propre = ""
-    alpha="azertyuiopqsdfghjklmwxcvbn AZERTYUIOPQSDFGHJKLMWXCVBN."
+    alpha = "azertyuiopqsdfghjklmwxcvbn AZERTYUIOPQSDFGHJKLMWXCVBN."
 
     # élimine les caractère inconnue
     for i in phrase:
@@ -26,7 +26,7 @@ def format_phrase(phrase: str) -> list:
             if i == ".":
                 phrase_propre += " ."
             else:
-                phrase_propre+=i
+                phrase_propre += i
     
     # transforme en une liste de mot
     liste_mot = phrase_propre.split()
@@ -34,7 +34,7 @@ def format_phrase(phrase: str) -> list:
     return liste_mot
 
 
-def check_in_dico(dico: dict, key):
+def check_in_dico(dico: dict, key) -> bool:
     """
     vérifie la presence d'une clef dans un dictionnaire
 
@@ -74,7 +74,7 @@ def read_file(file_name: str) -> list:
     """
     if check_file(file_name):
 
-        file = open(file_name,"r")
+        file = open(file_name, "r")
         content = file.read()
         content = content.split("\n") # sépare les element de content par ;
         data = [ i.split(";") for i in content]
@@ -83,6 +83,12 @@ def read_file(file_name: str) -> list:
         return data
     
 def write_file(file_name: str, expression: str) -> None:
+    """
+    fonction qui ajoute une expression a la fin d'un fichier
+
+    input: nom du fichier (str), expression a ajouter (str)
+    output: rien
+    """
     if check_file(file_name):
         file = open(file_name,"a")
         file.write(expression)
@@ -98,7 +104,6 @@ def make_dico_file(file: str) -> dict:
     """
 
     data = read_file(file)
-    print(data)
     dico = {i[0] : int(i[1]) for i in data}
     
     return dico
@@ -110,19 +115,19 @@ def add_to_dico_file(key: str, value: int, file: str) -> None:
     input: clef (str), valeur (int), fichier du dictionnaire (str)
     output: rien
     """
-    expression="\n"+key+";"+str(value)
+    expression = "\n" + key + ";" + str(value)
     write_file(file, expression)
 
 #### fonction automates
 
-def changement_etats(etats: int, entree: int)->int:
+def changement_etats(etats: int, entree: int) -> int:
     """
     fonction qui donne l’état suivant a partir d'un état et d'une entrée
 
     input: état actuel (int), entree actuelle (int)
     output: état suivant (int)
     """
-    suivant=matrice_etats[etats][entree]
+    suivant = matrice_etats[etats][entree]
 
     return suivant
 
@@ -134,32 +139,49 @@ def verif_phrase(phrase: str) -> int:
     input: phrase a verifier (str)
     output: 0 si bien passer (int) 
     """
+    # initialisation des variable local et global
     global dictionnaire
+    
+    if len(phrase) == 0:
+        print("phrase incorrect")
+    else : 
+        liste_mots = format_phrase(phrase)
+        etat = 0
 
-    liste_mots=format_phrase(phrase)
-    etat= 0
-    for i in liste_mots:
-        if check_in_dico(dictionnaire, i):
-            etat = changement_etats(etat, dictionnaire[i])
-            if etat == 8:
-                print("phrase incorrect")
-                break
-            if etat == 9:
-                print("phrase correct")
-        else:
-            print("Mot inexistant dans le dictionnaire :", i)
-            choix = input("voulez-vous l'ajouter ? (Y/N) : ")
-            if choix.upper() == "Y":
-                classe_mot=int(input("classe du mot:\n 0 = article\n 1 = adjectif\n 2 = Nom commun\n 3 = Nom Propre\n 4 = verbe\n>>>  "))
-                add_to_dico_file(i, classe_mot, dico_file)
-                dictionnaire = make_dico_file(dico_file)
-                verif_phrase(phrase)
-    return 0
+        # verification pour chaque mots
+        for i in liste_mots:
+            if check_in_dico(dictionnaire, i): # si le mot existe dans le dictionnaire
+
+                # changement d'état et gestion des cas de sortie 
+
+                etat = changement_etats(etat, dictionnaire[i])
+                if etat == 8:
+                    print("phrase incorrect")
+                    break
+                if etat == 9:
+                    print("phrase correct")
+            else:
+                # ajout du mot dans le dictionnaire selon la volonté de l'utilisateur
+                print("Mot inexistant dans le dictionnaire :", i)
+                choix = input("voulez-vous l'ajouter ? (Y/N) : ")
+
+                if choix.upper() == "Y":
+
+                    classe_mot = int(input("classe du mot:\n 0 = article\n 1 = adjectif\n 2 = Nom commun\n 3 = Nom Propre\n 4 = verbe\n>>>  "))
+                    
+                    add_to_dico_file(i, classe_mot, dico_file)
+                    dictionnaire = make_dico_file(dico_file)
+                    
+                    verif_phrase(phrase)
+                else:
+                    print("mot inconnu, fin du programme")
+                    break
+        return 0
 
 
 #### initialisation des variables
 
-dico_file="dictionnaire.txt"
+dico_file = "dictionnaire.txt"
 
 dictionnaire = make_dico_file(dico_file)
 
@@ -189,8 +211,8 @@ if __name__ == "__main__":
 
     # fonction check_in_dico
 
-    print("check_in_dico -> clef OK ",check_in_dico({0:1,2:3},0))
-    print("check_in_dico -> clef OK ",check_in_dico({0:1,2:3},1))
+    print("check_in_dico -> clef OK ", check_in_dico({0:1,2:3},0))
+    print("check_in_dico -> clef OK ", check_in_dico({0:1,2:3},1))
     
 
     # fonction check_file
